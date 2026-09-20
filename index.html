@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Night Before — Prep Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --ink:#1B2430;
+    --ink-2:#242F3E;
+    --paper:#F7F5F0;
+    --gold:#E8A33D;
+    --gold-dim:#C6842A;
+    --slate:#8B93A1;
+    --slate-dark:#5B6472;
+    --pine:#3E8564;
+    --rust:#C15B44;
+    --violet:#8B7FC7;
+    --teal:#4FA8A0;
+    --line: rgba(247,245,240,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,163,61,0.10), transparent 60%),
+      var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:28px 20px 60px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:26px;border-bottom:1px solid var(--line);padding-bottom:20px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 6px;}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(28px,4vw,40px);margin:0;letter-spacing:-0.01em;}
+  .sub{color:var(--slate);font-size:14px;margin-top:6px;max-width:460px;line-height:1.5;}
+
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start;}
+  @media (max-width:820px){.grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:18px;}
+  body.viewer-locked #prepPanel input, body.viewer-locked #prepPanel textarea, body.viewer-locked #prepPanel button,
+  body.viewer-locked #semPanel input, body.viewer-locked #semPanel textarea, body.viewer-locked #semPanel button,
+  body.viewer-locked #specialDatesPanel input, body.viewer-locked #specialDatesPanel textarea, body.viewer-locked #specialDatesPanel button{
+    pointer-events:none; opacity:0.6;
+  }
+  .panel + .panel{margin-top:14px;}
+
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cal-month{font-family:'Fraunces',serif;font-size:19px;font-weight:600;}
+  .cal-nav{display:flex;gap:6px;}
+  .navbtn{
+    width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--paper);
+    cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:.15s;
+  }
+  .navbtn:hover:not(:disabled){background:var(--line);}
+  .navbtn:disabled{opacity:.25;cursor:not-allowed;}
+  .dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;}
+  .dow-row span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--slate);text-align:center;letter-spacing:.05em;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .day-cell{
+    aspect-ratio:1;border-radius:9px;border:1px solid transparent;background:rgba(247,245,240,0.03);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+    font-size:13px;color:var(--paper);position:relative;transition:.15s;
+  }
+  .day-cell:hover:not(.disabled){background:rgba(247,245,240,0.08);}
+  .day-cell.disabled{opacity:.22;cursor:default;}
+  .day-cell.selected{background:var(--gold);color:var(--ink);font-weight:600;border-color:var(--gold);}
+  .day-cell.today:not(.selected)::after{content:'';position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:var(--gold);}
+  .day-cell .dot{position:absolute;top:5px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--pine);}
+  .day-cell .special-dot{position:absolute;top:5px;left:6px;width:5px;height:5px;border-radius:50%;}
+  .day-cell.empty{visibility:hidden;}
+
+  .legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--slate);display:flex;gap:14px;flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:7px;height:7px;border-radius:50%;display:inline-block;}
+
+  .school-link{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--violet);text-decoration:none;
+    border:1px solid rgba(139,127,199,0.35);border-radius:20px;padding:7px 13px;white-space:nowrap;transition:.15s;
+  }
+  .school-link:hover{background:rgba(139,127,199,0.12);border-color:var(--violet);}
+  .school-link-wrap{display:flex;align-items:center;gap:6px;}
+  .school-link-edit{background:transparent;border:1px solid var(--line);color:var(--slate);border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:11px;}
+  .school-link-edit:hover{border-color:var(--violet);color:var(--violet);}
+
+  .sem-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;}
+  .sem-row{background:rgba(79,168,160,0.06);border:1px solid rgba(79,168,160,0.22);border-radius:10px;padding:9px 11px;margin-bottom:7px;}
+  .sem-row.active{border-color:var(--teal);background:rgba(79,168,160,0.13);}
+  .sem-label{font-weight:600;font-size:13px;outline:none;border-radius:4px;padding:1px 2px;}
+  .sem-label:focus{background:rgba(232,163,61,0.10);}
+  .sem-dates{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--slate);margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .sem-dates span[contenteditable]{outline:none;border-radius:3px;padding:0 2px;}
+  .sem-dates span[contenteditable]:focus{background:rgba(232,163,61,0.10);}
+  .sem-actions{display:flex;gap:6px;margin-top:6px;}
+  .sem-actions button{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:transparent;color:var(--slate);
+    border:1px solid var(--line);border-radius:6px;padding:3px 8px;cursor:pointer;
+  }
+  .sem-actions button:hover{border-color:var(--teal);color:var(--teal);}
+  .sem-actions button.danger:hover{border-color:var(--rust);color:var(--rust);}
+  .add-sem-btn{
+    width:100%;border:1px dashed rgba(79,168,160,0.4);background:transparent;color:var(--teal);font-size:12px;
+    padding:8px;border-radius:8px;cursor:pointer;font-family:'IBM Plex Mono',monospace;margin-top:2px;
+  }
+  .add-sem-btn:hover{background:rgba(79,168,160,0.08);}
+
+  .prep-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
+  .prep-date{font-family:'Fraunces',serif;font-size:26px;font-weight:600;}
+  .prep-date .downame{color:var(--gold);}
+  .prep-sub{color:var(--slate);font-size:12.5px;font-family:'IBM Plex Mono',monospace;margin-top:4px;}
+  .head-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .progress-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate);border:1px solid var(--line);border-radius:20px;padding:5px 11px;white-space:nowrap;}
+  .email-btn{
+    display:flex;align-items:center;gap:6px;background:var(--gold);color:var(--ink);border:none;border-radius:20px;
+    padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;
+  }
+  .email-btn:hover{background:var(--gold-dim);}
+
+  .special-banner{border-radius:11px;padding:11px 14px;margin-bottom:16px;font-size:13px;line-height:1.5;border:1px solid;}
+  .special-banner.exam{background:rgba(232,163,61,0.10);border-color:rgba(232,163,61,0.35);color:var(--gold);}
+  .special-banner.noclass{background:rgba(193,91,68,0.10);border-color:rgba(193,91,68,0.35);color:#E08A76;}
+  .special-banner.other{background:rgba(139,127,199,0.10);border-color:rgba(139,127,199,0.35);color:var(--violet);}
+  .special-banner strong{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;opacity:.85;}
+  .special-banner div.line{color:var(--paper);}
+  .special-banner div.line + div.line{margin-top:3px;}
+
+  .no-sem-card{border:1px dashed var(--slate-dark);border-radius:12px;padding:22px;text-align:center;color:var(--slate);}
+  .no-sem-card p{margin:0 0 12px;font-size:13.5px;line-height:1.5;}
+  .no-sem-card button{
+    background:var(--teal);color:var(--ink);border:none;border-radius:20px;padding:8px 16px;font-size:12.5px;
+    font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .no-sem-card button:hover{opacity:.9;}
+
+  .verse-card{
+    background:rgba(139,127,199,0.08);border:1px solid rgba(139,127,199,0.28);border-radius:11px;
+    padding:13px 15px;margin-bottom:16px;
+  }
+  .verse-text{font-family:'Fraunces',serif;font-style:italic;font-size:14.5px;line-height:1.5;color:var(--paper);}
+  .verse-ref{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--violet);margin-top:6px;letter-spacing:.03em;}
+
+  .section{margin-bottom:18px;}
+  .section-title{
+    display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    font-family:'IBM Plex Mono',monospace;color:var(--slate);margin-bottom:9px;
+  }
+  .section-title .swatch{width:8px;height:8px;border-radius:2px;}
+
+  .card{background:rgba(247,245,240,0.035);border:1px solid var(--line);border-radius:11px;padding:13px 14px;margin-bottom:9px;position:relative;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+  .card-name{font-weight:600;font-size:14.5px;outline:none;border-radius:4px;padding:1px 2px;display:inline-block;}
+  .card-name:focus{background:rgba(232,163,61,0.10);}
+  .card-code{color:var(--slate);font-size:11.5px;font-family:'IBM Plex Mono',monospace;outline:none;border-radius:4px;padding:1px 2px;display:inline-block;}
+  .card-code:focus{background:rgba(232,163,61,0.10);}
+  .card-loc{color:var(--gold);font-size:11px;font-family:'IBM Plex Mono',monospace;margin-top:2px;outline:none;border-radius:4px;padding:1px 2px;display:inline-block;}
+  .card-loc:focus{background:rgba(232,163,61,0.10);}
+  .card-time{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--gold-dim);white-space:nowrap;text-align:right;outline:none;border-radius:4px;padding:1px 3px;}
+  .card-time:focus{background:rgba(232,163,61,0.10);}
+  .card-instr{display:block;color:var(--slate);font-size:10.5px;margin-top:2px;text-align:right;outline:none;border-radius:4px;padding:1px 2px;}
+  .card-instr:focus{background:rgba(232,163,61,0.10);}
+  .card-remove{position:absolute;top:8px;right:9px;width:20px;height:20px;border:none;background:transparent;color:var(--slate);cursor:pointer;font-size:13px;border-radius:5px;opacity:0;}
+  .card:hover .card-remove{opacity:1;}
+  .card-remove:hover{color:var(--rust);}
+
+  ul.items{list-style:none;margin:0;padding:0;}
+  ul.items li{display:flex;align-items:center;gap:9px;padding:5px 2px;border-radius:6px;}
+  ul.items li:hover{background:rgba(247,245,240,0.04);}
+  .chk{
+    width:17px;height:17px;flex:0 0 17px;border-radius:5px;border:1.5px solid var(--slate-dark);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:transparent;transition:.12s;
+  }
+  .chk.on{background:var(--pine);border-color:var(--pine);color:var(--ink);}
+  .item-text{flex:1;font-size:13.5px;outline:none;border:none;background:transparent;color:var(--paper);font-family:inherit;padding:2px 3px;border-radius:4px;}
+  .item-text.done{color:var(--slate);text-decoration:line-through;}
+  .item-text:focus{background:rgba(232,163,61,0.10);}
+  .rm{opacity:0;width:20px;height:20px;border:none;background:transparent;color:var(--slate);cursor:pointer;font-size:14px;border-radius:5px;flex:0 0 auto;}
+  li:hover .rm{opacity:1;}
+  .rm:hover{color:var(--rust);}
+  .add-row{display:flex;align-items:center;gap:8px;margin-top:2px;padding:5px 2px;}
+  .add-row button{
+    border:1px dashed var(--slate-dark);background:transparent;color:var(--slate);font-size:12px;padding:4px 10px;
+    border-radius:6px;cursor:pointer;font-family:'IBM Plex Mono',monospace;
+  }
+  .add-row button:hover{border-color:var(--gold);color:var(--gold);}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:rgba(232,163,61,0.09);border:1px solid rgba(232,163,61,0.25);
+    color:var(--gold);padding:6px 10px;border-radius:20px;display:flex;align-items:center;gap:7px;
+  }
+  .chip .rm{opacity:.5;width:14px;height:14px;font-size:12px;padding:0;}
+  .chip .rm:hover{opacity:1;}
+  .chip-add{background:transparent;border-style:dashed;color:var(--slate);}
+
+  textarea.notes{
+    width:100%;min-height:88px;background:rgba(247,245,240,0.035);border:1px solid var(--line);border-radius:10px;
+    color:var(--paper);font-family:'Inter',sans-serif;font-size:13.5px;padding:11px 12px;resize:vertical;outline:none;line-height:1.5;
+  }
+  textarea.notes:focus{border-color:var(--gold-dim);}
+  textarea.notes::placeholder{color:var(--slate-dark);}
+
+  .life-card{background:rgba(139,127,199,0.06);border:1px solid rgba(139,127,199,0.22);border-radius:11px;padding:11px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .life-name{font-weight:600;font-size:13.5px;outline:none;border-radius:4px;padding:1px 3px;}
+  .life-name:focus{background:rgba(232,163,61,0.10);}
+  .life-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+  .life-time{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--violet);outline:none;border-radius:4px;padding:1px 4px;text-align:right;}
+  .life-time:focus{background:rgba(232,163,61,0.10);}
+  .life-dress{font-size:10.5px;color:var(--slate);outline:none;border-radius:4px;padding:1px 4px;text-align:right;}
+  .life-dress:focus{background:rgba(232,163,61,0.10);}
+  .life-note{font-size:11px;color:var(--slate-dark);font-style:italic;margin:-4px 0 8px 2px;}
+
+  .custom-card{background:rgba(247,245,240,0.035);border:1px dashed var(--slate-dark);border-radius:11px;padding:11px 14px;margin-bottom:8px;}
+  .custom-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+  .custom-row:last-child{margin-bottom:0;}
+  .custom-label{flex:1;font-weight:600;font-size:13.5px;outline:none;background:transparent;border:none;color:var(--paper);font-family:inherit;padding:2px 3px;border-radius:4px;}
+  .custom-label:focus{background:rgba(232,163,61,0.10);}
+  .custom-time{width:150px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;outline:none;background:transparent;border:none;color:var(--gold-dim);padding:2px 3px;border-radius:4px;}
+  .custom-time:focus{background:rgba(232,163,61,0.10);}
+
+  .empty-state{color:var(--slate);font-size:13px;padding:20px 4px;font-style:italic;}
+  .save-hint{font-size:10.5px;color:var(--slate-dark);text-align:right;margin-top:4px;font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+<div id="authGate" style="position:fixed;inset:0;background:var(--ink);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:380px;width:100%;text-align:center;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 10px;">Prep Journal</div>
+    <h1 style="font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:0 0 18px;color:var(--paper);">Sign in to your journal</h1>
+    <p id="authStatus" style="color:var(--slate);font-size:13.5px;margin:0 0 16px;">Enter your email — we'll send a sign-in link. No password needed.</p>
+    <input id="authEmail" type="email" placeholder="you@school.edu" style="width:100%;box-sizing:border-box;background:rgba(247,245,240,0.05);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--paper);font-family:inherit;font-size:14px;margin-bottom:12px;">
+    <button id="authSendBtn" style="width:100%;background:var(--gold);color:var(--ink);border:none;border-radius:20px;padding:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:14px;">Send sign-in link</button>
+  </div>
+</div>
+<div class="wrap" style="display:none;" id="appRoot">
+  <header>
+    <div>
+      <p class="eyebrow">Night Before</p>
+      <h1>Prep Journal</h1>
+      <p class="sub">Pick a day. See what needs to be ready the evening before — work shifts, class materials, recurring commitments, and open study time. Tap any item to edit it.</p>
+    </div>
+    <div class="school-link-wrap">
+      <a class="school-link" id="schoolLinkAnchor" href="#" target="_blank" rel="noopener">+ Add your school's calendar link</a>
+      <button class="school-link-edit" id="schoolLinkEdit" title="Edit this link">✎</button>
+      <button id="shareBtn" style="background:transparent;border:1px solid var(--line);color:var(--slate);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;">Share ↗</button>
+      <button id="viewSharedBtn" style="background:transparent;border:1px solid var(--line);color:var(--slate);border-radius:20px;padding:4px 10px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;">Have a code?</button>
+    </div>
+  </header>
+  <div id="viewerBanner" style="display:none;background:rgba(232,163,61,0.12);border:1px solid var(--gold-dim);color:var(--gold);border-radius:8px;padding:8px 14px;font-size:12.5px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+    <span>Viewing a shared journal — read only.</span>
+    <button id="exitViewerBtn" style="background:transparent;border:1px solid var(--gold-dim);color:var(--gold);border-radius:16px;padding:3px 10px;cursor:pointer;font-family:inherit;font-size:11.5px;">Exit</button>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <div class="cal-head">
+          <div class="cal-month" id="calMonth">September 2026</div>
+          <div class="cal-nav">
+            <button class="navbtn" id="prevMonth">‹</button>
+            <button class="navbtn" id="nextMonth">›</button>
+          </div>
+        </div>
+        <div class="dow-row"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="legend">
+          <span><i style="background:var(--gold)"></i>Selected</span>
+          <span><i style="background:var(--pine)"></i>Progress</span>
+          <span><i style="background:var(--gold)"></i>Exams</span>
+          <span><i style="background:var(--rust)"></i>No class</span>
+          <span><i style="background:var(--violet)"></i>Other dates</span>
+        </div>
+      </div>
+
+      <div class="panel" id="semPanel"></div>
+      <div class="panel" id="specialDatesPanel"></div>
+    </div>
+
+    <div class="panel" id="prepPanel"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'prep-journal-template-v1'; // kept only as a label; persistence now lives in Supabase
+const SUPABASE_URL = 'https://ztdfgqesgtwphmvakprr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGZncWVzZ3R3cGhtdmFrcHJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4NzM4NzMsImV4cCI6MjEwNTQ0OTg3M30.AoZ1aeGwBkXONXa4YG8i6UHSVUfgg-K74TD0k_BPG_w';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+const SHARE_STORAGE_KEY = 'prep-journal-viewing-code';
+let viewerMode = false;
+let viewingCode = null;
+let ownerUserId = null;   // set when in viewer mode, to the journal owner's id
+let myShareCode = null;   // set in owner mode if sharing is turned on
+
+async function initAuth(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ await enterApp(session.user); return; }
+  sb.auth.onAuthStateChange((event, session)=>{
+    if(session && !currentUser) enterApp(session.user);
+  });
+  document.getElementById('authSendBtn').addEventListener('click', sendMagicLink);
+  document.getElementById('authEmail').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendMagicLink(); });
+}
+async function sendMagicLink(){
+  const email = document.getElementById('authEmail').value.trim();
+  const statusEl = document.getElementById('authStatus');
+  if(!email){ statusEl.textContent = 'Enter your email first.'; return; }
+  document.getElementById('authSendBtn').disabled = true;
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: window.location.href } });
+  document.getElementById('authSendBtn').disabled = false;
+  statusEl.textContent = error ? ('Error: ' + error.message) : 'Check your email for the sign-in link.';
+}
+async function enterApp(user){
+  currentUser = user;
+  document.getElementById('authGate').style.display = 'none';
+  document.getElementById('appRoot').style.display = '';
+  const savedCode = localStorage.getItem(SHARE_STORAGE_KEY);
+  document.getElementById('shareBtn').addEventListener('click', openShareModal);
+  document.getElementById('viewSharedBtn').addEventListener('click', promptForSharedCode);
+  document.getElementById('exitViewerBtn').addEventListener('click', exitViewerMode);
+  if(savedCode){ await enterViewerMode(savedCode); }
+  await loadState();
+}
+async function promptForSharedCode(){
+  const code = await customPrompt('Enter the share code you were given:');
+  if(!code) return;
+  await enterViewerMode(code.trim().toUpperCase());
+  await loadState();
+}
+
+async function enterViewerMode(code){
+  viewerMode = true;
+  viewingCode = code;
+  localStorage.setItem(SHARE_STORAGE_KEY, code);
+  document.getElementById('viewerBanner').style.display = 'flex';
+  document.getElementById('shareBtn').style.display = 'none';
+  document.getElementById('viewSharedBtn').style.display = 'none';
+  applyViewerLock(true);
+}
+async function exitViewerMode(){
+  viewerMode = false;
+  viewingCode = null;
+  ownerUserId = null;
+  localStorage.removeItem(SHARE_STORAGE_KEY);
+  document.getElementById('viewerBanner').style.display = 'none';
+  document.getElementById('shareBtn').style.display = '';
+  document.getElementById('viewSharedBtn').style.display = '';
+  applyViewerLock(false);
+  await loadState();
+}
+function applyViewerLock(locked){
+  document.body.classList.toggle('viewer-locked', locked);
+}
+async function openShareModal(){
+  if(!myShareCode){
+    const gen = await customConfirm('Generate a share code so a teacher, advisor, or parent can view this journal (read-only)?');
+    if(!gen) return;
+    myShareCode = genShareCode();
+    const { error } = await sb.from('prep_journal_state').update({ share_code: myShareCode }).eq('user_id', currentUser.id);
+    if(error){ await customConfirm('Could not generate a code: ' + error.message); myShareCode = null; return; }
+  }
+  const stop = await customConfirm(`Share code: ${myShareCode}\n\nGive this to a teacher, advisor, or parent — they can view this journal (read-only) after entering it.\n\nPress OK to stop sharing, or Cancel to keep this code active.`);
+  if(stop){
+    const { error } = await sb.from('prep_journal_state').update({ share_code: null }).eq('user_id', currentUser.id);
+    if(!error) myShareCode = null;
+  }
+}
+function genShareCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+function customConfirm(message){
+  return openModal((box, done)=>{
+    box.innerHTML = `<div style="font-size:13.5px;line-height:1.5;margin-bottom:14px;white-space:pre-wrap;">${escapeHtml(message)}</div>`;
+    const row = document.createElement('div'); row.style.cssText='display:flex;gap:8px;justify-content:flex-end;';
+    const cancelBtn = document.createElement('button'); cancelBtn.textContent='Cancel';
+    cancelBtn.style.cssText='background:transparent;border:1px solid var(--line);color:var(--slate);border-radius:20px;padding:8px 16px;cursor:pointer;font-family:inherit;';
+    cancelBtn.addEventListener('click', ()=> done(false));
+    const okBtn = document.createElement('button'); okBtn.textContent='OK';
+    okBtn.style.cssText='background:var(--gold);color:var(--ink);border:none;border-radius:20px;padding:8px 16px;font-weight:600;cursor:pointer;font-family:inherit;';
+    okBtn.addEventListener('click', ()=> done(true));
+    row.appendChild(cancelBtn); row.appendChild(okBtn);
+    box.appendChild(row);
+  });
+}
+const TODAY = new Date();
+const START_DATE = new Date(TODAY.getFullYear()-2, TODAY.getMonth(), 1); // generous floor, not a hard product limit
+const DOW_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const VERSES = {
+  0:{ text:'', ref:'' }, 1:{ text:'', ref:'' }, 2:{ text:'', ref:'' }, 3:{ text:'', ref:'' },
+  4:{ text:'', ref:'' }, 5:{ text:'', ref:'' }, 6:{ text:'', ref:'' }
+};
+
+function specialDatesFor(dateStr){ return state.specialDates.filter(sd => dateStr >= sd.start && dateStr <= sd.end); }
+function topCategoryFor(dateStr){
+  const list = specialDatesFor(dateStr);
+  if(!list.length) return null;
+  if(list.some(s=>s.category==='noclass')) return 'noclass';
+  if(list.some(s=>s.category==='exam')) return 'exam';
+  return 'other';
+}
+function getRepeatEndDate(dateObj){
+  const sem = findSemester(fmtDate(dateObj));
+  if(sem) return parseDate(sem.end);
+  const fallback = new Date(dateObj); fallback.setMonth(fallback.getMonth()+4);
+  return fallback;
+}
+
+// ---------- semester / class-def model ----------
+// Each semester: { id, label, start, end, template:{0..6:{work,classes:[{id,time}],life,studyWindows,eveningNote}}, classDefs:{id:{code,name,loc,instr,items}} }
+function buildWeeklyShell(id, label, start, end){
+  const template = {};
+  for(let i=0;i<7;i++) template[i] = { work:null, classes:[], life:[], studyWindows:[] };
+  return { id, label, start, end, mode:'weekly', template, classDefs:{} };
+}
+
+function cloneSemesterShell(sourceSem, id, label, start, end){
+  if(!sourceSem) return buildWeeklyShell(id, label, start, end);
+  const template = JSON.parse(JSON.stringify(sourceSem.template || {}));
+  Object.keys(template).forEach(dow=>{ template[dow].classes = []; });
+  return { id, label, start, end, mode:'weekly', template, classDefs:{} };
+}
+
+function buildRotatingShell(id, label, start, end, cycleLength, anchorDate, skipWeekends){
+  const cycleTemplate = {};
+  for(let i=1;i<=cycleLength;i++){
+    cycleTemplate[i] = { work:null, classes:[], life:[], studyWindows:[] };
+  }
+  return { id, label, start, end, mode:'rotating', cycleLength, anchorDate, skipWeekends: skipWeekends!==false, cycleTemplate, classDefs:{} };
+}
+
+function buildInitialSemesters(){
+  return []; // blank template — first-run setup walks the person through creating their first term
+}
+
+// ---------- schedule resolution: weekly (day-of-week) vs rotating (Day 1..N cycling on school days) ----------
+function computeCycleIndex(dateStr, sem){
+  const dateObj = parseDate(dateStr);
+  const anchor = parseDate(sem.anchorDate);
+  if(dateObj < anchor) return null;
+  function isSchoolDay(d){
+    const dow = d.getDay();
+    if(sem.skipWeekends!==false && (dow===0||dow===6)) return false;
+    if(topCategoryFor(fmtDate(d))==='noclass') return false;
+    return true;
+  }
+  if(!isSchoolDay(dateObj)) return null;
+  let count = 0;
+  let d = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate());
+  const target = fmtDate(dateObj);
+  while(fmtDate(d) !== target){
+    if(isSchoolDay(d)) count++;
+    d.setDate(d.getDate()+1);
+  }
+  return (count % sem.cycleLength) + 1;
+}
+function getScheduleContainer(sem){ return sem.mode==='rotating' ? sem.cycleTemplate : sem.template; }
+function getDayKey(dateStr, sem){ return sem.mode==='rotating' ? computeCycleIndex(dateStr, sem) : parseDate(dateStr).getDay(); }
+function getDayTemplate(dateStr, sem){
+  if(!sem) return null;
+  const key = getDayKey(dateStr, sem);
+  if(key===null || key===undefined) return null;
+  const container = getScheduleContainer(sem);
+  return container[key] || null;
+}
+function dayLabelFor(dateStr, sem){
+  const dow = parseDate(dateStr).getDay();
+  if(sem && sem.mode==='rotating'){
+    const key = computeCycleIndex(dateStr, sem);
+    return key===null ? `${DOW_NAMES[dow]} — no school` : `${DOW_NAMES[dow]} · Day ${key}`;
+  }
+  return DOW_NAMES[dow];
+}
+
+let state = { verses: {...VERSES}, entries: {}, semesters: buildInitialSemesters(), schoolLink: { label:'', url:'' }, showDailyNote: false, specialDates: [] };
+let viewYear = TODAY.getFullYear(), viewMonth = TODAY.getMonth();
+let selectedDate = fmtDate(TODAY);
+let backupOpen = false;
+let importOpen = false;
+let importText = '';
+
+function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function parseDate(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); }
+function todayStr(){ return fmtDate(new Date()); }
+function findSemester(dateStr){
+  const matches = state.semesters.filter(s=> dateStr>=s.start && dateStr<=s.end);
+  if(!matches.length) return null;
+  return matches[matches.length-1]; // last-added wins when terms overlap, so a newly set-up term takes priority
+}
+function semestersOverlap(aStart,aEnd,bStart,bEnd){ return aStart<=bEnd && bStart<=aEnd; }
+function findOverlappingSemesters(start,end,excludeId){
+  return state.semesters.filter(s=> s.id!==excludeId && semestersOverlap(start,end,s.start,s.end));
+}
+function isValidDateStr(s){ return /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(parseDate(s).getTime()); }
+
+// ---------- custom modal dialogs (native confirm/prompt/alert are blocked in this sandbox) ----------
+function escapeHtml(str){ const div = document.createElement('div'); div.textContent = str==null?'':String(str); return div.innerHTML; }
+function openModal(build){
+  return new Promise((resolve)=>{
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(10,13,18,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+    const box = document.createElement('div');
+    box.style.cssText = "background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:420px;width:100%;font-family:'Inter',sans-serif;color:var(--paper);box-shadow:0 20px 60px rgba(0,0,0,0.5);";
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    const done = (result)=>{ document.body.removeChild(overlay); resolve(result); };
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay) done(build.cancelValue!==undefined ? build.cancelValue : false); });
+    build(box, done);
+  });
+}
+function customAlert(message){
+  return openModal((box, done)=>{
+    box.innerHTML = `<div style="font-size:13.5px;line-height:1.5;margin-bottom:16px;white-space:pre-wrap;">${escapeHtml(message)}</div>`;
+    const btn = document.createElement('button'); btn.textContent='OK';
+    btn.style.cssText='background:var(--gold);color:var(--ink);border:none;border-radius:20px;padding:8px 18px;font-weight:600;cursor:pointer;float:right;font-family:inherit;';
+    btn.addEventListener('click', ()=> done());
+    box.appendChild(btn);
+    setTimeout(()=> btn.focus(), 30);
+  });
+}
+function customConfirm(message){
+  return openModal((box, done)=>{
+    box.innerHTML = `<div style="font-size:13.5px;line-height:1.5;margin-bottom:16px;white-space:pre-wrap;">${escapeHtml(message)}</div>`;
+    const row = document.createElement('div'); row.style.cssText='display:flex;gap:8px;justify-content:flex-end;';
+    const cancelBtn = document.createElement('button'); cancelBtn.textContent='Cancel';
+    cancelBtn.style.cssText='background:transparent;border:1px solid var(--line);color:var(--slate);border-radius:20px;padding:8px 16px;cursor:pointer;font-family:inherit;';
+    cancelBtn.addEventListener('click', ()=> done(false));
+    const okBtn = document.createElement('button'); okBtn.textContent='OK';
+    okBtn.style.cssText='background:var(--gold);color:var(--ink);border:none;border-radius:20px;padding:8px 16px;font-weight:600;cursor:pointer;font-family:inherit;';
+    okBtn.addEventListener('click', ()=> done(true));
+    row.appendChild(cancelBtn); row.appendChild(okBtn);
+    box.appendChild(row);
+    setTimeout(()=> okBtn.focus(), 30);
+  });
+}
+function customPrompt(message, defaultValue){
+  return openModal((box, done)=>{
+    box.innerHTML = `<div style="font-size:13.5px;line-height:1.5;margin-bottom:10px;white-space:pre-wrap;">${escapeHtml(message)}</div>`;
+    const input = document.createElement('input'); input.type='text'; input.value = defaultValue||'';
+    input.style.cssText="width:100%;box-sizing:border-box;background:rgba(247,245,240,0.05);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--paper);font-family:inherit;font-size:13.5px;margin-bottom:14px;";
+    box.appendChild(input);
+    const row = document.createElement('div'); row.style.cssText='display:flex;gap:8px;justify-content:flex-end;';
+    const cancelBtn = document.createElement('button'); cancelBtn.textContent='Cancel';
+    cancelBtn.style.cssText='background:transparent;border:1px solid var(--line);color:var(--slate);border-radius:20px;padding:8px 16px;cursor:pointer;font-family:inherit;';
+    cancelBtn.addEventListener('click', ()=> done(null));
+    const okBtn = document.createElement('button'); okBtn.textContent='OK';
+    okBtn.style.cssText='background:var(--gold);color:var(--ink);border:none;border-radius:20px;padding:8px 16px;font-weight:600;cursor:pointer;font-family:inherit;';
+    okBtn.addEventListener('click', ()=> done(input.value));
+    input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); done(input.value); } if(e.key==='Escape'){ done(null); } });
+    row.appendChild(cancelBtn); row.appendChild(okBtn);
+    box.appendChild(row);
+    setTimeout(()=> input.focus(), 30);
+  });
+}
+
+async function loadState(){
+  try{
+    let data, error;
+    if(viewerMode){
+      ({ data, error } = await sb.from('prep_journal_state').select('state,user_id').eq('share_code', viewingCode).maybeSingle());
+      if(data) ownerUserId = data.user_id;
+      else if(!error){ /* code no longer valid */ await exitViewerMode(); return; }
+    } else {
+      ({ data, error } = await sb.from('prep_journal_state').select('state,share_code').eq('user_id', currentUser.id).maybeSingle());
+      if(data) myShareCode = data.share_code || null;
+    }
+    if(error) throw error;
+    if(data && data.state){
+      const parsed = data.state;
+      state.verses = parsed.verses || {...VERSES};
+      state.entries = parsed.entries || {};
+      state.semesters = (parsed.semesters && parsed.semesters.length) ? parsed.semesters : buildInitialSemesters();
+      state.schoolLink = parsed.schoolLink || state.schoolLink;
+      state.showDailyNote = parsed.showDailyNote || false;
+      state.specialDates = parsed.specialDates || [];
+    }
+  }catch(e){ /* no saved data yet */ }
+  render();
+}
+let saveTimer=null;
+let saveStatus='saved';
+function setSaveStatus(s){
+  saveStatus = s;
+  const hint = document.getElementById('saveHint');
+  if(!hint) return;
+  if(s==='saved') hint.textContent = 'saved automatically';
+  else if(s==='saving') hint.textContent = 'saving…';
+  else if(s==='retrying') hint.textContent = 'connection hiccup — retrying…';
+  else if(s==='offline') hint.textContent = 'could not save — will retry on next change';
+}
+function saveState(){
+  clearTimeout(saveTimer);
+  setSaveStatus('saving');
+  saveTimer = setTimeout(()=> attemptSave(3), 300);
+}
+async function attemptSave(retriesLeft){
+  if(viewerMode){ setSaveStatus('saved'); return; } // read-only: nothing to persist
+  try{
+    const { error } = await sb.from('prep_journal_state').upsert({ user_id: currentUser.id, state: state, updated_at: new Date().toISOString() });
+    if(error) throw error;
+    setSaveStatus('saved');
+  }catch(e){
+    if(retriesLeft>0){ setSaveStatus('retrying'); setTimeout(()=> attemptSave(retriesLeft-1), 1200); }
+    else{ setSaveStatus('offline'); console.warn('Storage save failed after retries:', e); }
+  }
+}
+
+function getEntry(dateStr){
+  if(!state.entries[dateStr]) state.entries[dateStr] = { workChecks:[], classChecks:{}, notes:'', customEvents:[] };
+  if(!state.entries[dateStr].customEvents) state.entries[dateStr].customEvents = [];
+  return state.entries[dateStr];
+}
+function entryProgress(dateStr){
+  const e = state.entries[dateStr];
+  if(!e) return {done:0,total:0};
+  const sem = findSemester(dateStr);
+  if(!sem) return {done:0,total:0};
+  const t = getDayTemplate(dateStr, sem);
+  if(!t) return {done:0,total:0};
+  let total=0, done=0;
+  if(t.work){ total += t.work.items.length; done += (e.workChecks||[]).filter(Boolean).length; }
+  t.classes.forEach(ref=>{
+    const cd = sem.classDefs[ref.id]; if(!cd) return;
+    total += cd.items.length;
+    done += ((e.classChecks||{})[ref.id]||[]).filter(Boolean).length;
+  });
+  return {done,total};
+}
+
+function renderCalendar(){
+  document.getElementById('calMonth').textContent = MONTH_NAMES[viewMonth]+' '+viewYear;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML='';
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const tstr = todayStr();
+
+  for(let i=0;i<startOffset;i++){
+    const c = document.createElement('div'); c.className='day-cell empty'; grid.appendChild(c);
+  }
+  for(let d=1; d<=daysInMonth; d++){
+    const dateObj = new Date(viewYear, viewMonth, d);
+    const dstr = fmtDate(dateObj);
+    const disabled = dateObj < START_DATE;
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + (disabled?' disabled':'') + (dstr===selectedDate?' selected':'') + (dstr===tstr?' today':'');
+    cell.textContent = d;
+    const prog = entryProgress(dstr);
+    if(!disabled && prog.done>0){ const dot = document.createElement('span'); dot.className='dot'; cell.appendChild(dot); }
+    if(!disabled){
+      const cat = topCategoryFor(dstr);
+      if(cat){
+        const sdot = document.createElement('span'); sdot.className='special-dot';
+        sdot.style.background = cat==='exam' ? 'var(--gold)' : cat==='noclass' ? 'var(--rust)' : 'var(--violet)';
+        cell.appendChild(sdot);
+      }
+    }
+    if(!disabled){ cell.addEventListener('click', ()=>{ selectedDate = dstr; render(); }); }
+    grid.appendChild(cell);
+  }
+  const prevBtn = document.getElementById('prevMonth');
+  const isAtStart = (viewYear===START_DATE.getFullYear() && viewMonth===START_DATE.getMonth());
+  prevBtn.disabled = isAtStart;
+}
+document.getElementById('prevMonth').addEventListener('click', ()=>{ viewMonth--; if(viewMonth<0){viewMonth=11; viewYear--;} renderCalendar(); });
+document.getElementById('nextMonth').addEventListener('click', ()=>{ viewMonth++; if(viewMonth>11){viewMonth=0; viewYear++;} renderCalendar(); });
+
+function renderSemesterPanel(){
+  const panel = document.getElementById('semPanel');
+  panel.innerHTML='';
+  const title = document.createElement('div'); title.className='sem-title'; title.textContent='Semesters';
+  panel.appendChild(title);
+  const activeSem = findSemester(selectedDate);
+  state.semesters.slice().sort((a,b)=> a.start.localeCompare(b.start)).forEach(sem=>{
+    const row = document.createElement('div'); row.className='sem-row' + (activeSem && activeSem.id===sem.id ? ' active' : '');
+    const label = document.createElement('div'); label.className='sem-label'; label.contentEditable='true'; label.textContent=sem.label;
+    label.addEventListener('blur', ()=>{ sem.label = label.textContent.trim() || sem.label; saveState(); });
+    const dates = document.createElement('div'); dates.className='sem-dates';
+    const startSpan = document.createElement('span'); startSpan.contentEditable='true'; startSpan.textContent=sem.start;
+    startSpan.addEventListener('blur', async ()=>{
+      const v = startSpan.textContent.trim();
+      if(isValidDateStr(v)) { sem.start=v; saveState(); } else { startSpan.textContent = sem.start; await customAlert('Use YYYY-MM-DD format.'); }
+    });
+    const arrow = document.createElement('span'); arrow.textContent='→'; arrow.style.opacity='.5';
+    const endSpan = document.createElement('span'); endSpan.contentEditable='true'; endSpan.textContent=sem.end;
+    endSpan.addEventListener('blur', async ()=>{
+      const v = endSpan.textContent.trim();
+      if(isValidDateStr(v)) { sem.end=v; saveState(); } else { endSpan.textContent = sem.end; await customAlert('Use YYYY-MM-DD format.'); }
+    });
+    dates.appendChild(startSpan); dates.appendChild(arrow); dates.appendChild(endSpan);
+    if(sem.mode==='rotating'){
+      const modeTag = document.createElement('span'); modeTag.style.cssText='color:var(--teal);margin-left:4px;';
+      modeTag.textContent = `· ${sem.cycleLength}-day rotation`;
+      dates.appendChild(modeTag);
+    }
+    const actions = document.createElement('div'); actions.className='sem-actions';
+    const goBtn = document.createElement('button'); goBtn.textContent='Go to term';
+    goBtn.addEventListener('click', ()=>{
+      const d = parseDate(sem.start);
+      viewYear = d.getFullYear(); viewMonth = d.getMonth(); selectedDate = sem.start;
+      render();
+    });
+    const delBtn = document.createElement('button'); delBtn.className='danger'; delBtn.textContent='Delete';
+    delBtn.addEventListener('click', async ()=>{
+      if(state.semesters.length<=1){ await customAlert('At least one term needs to stay on the calendar.'); return; }
+      if(await customConfirm(`Delete "${sem.label}"? This removes its class list too.`)){
+        state.semesters = state.semesters.filter(s=>s.id!==sem.id);
+        saveState(); render();
+      }
+    });
+    actions.appendChild(goBtn); actions.appendChild(delBtn);
+    row.appendChild(label); row.appendChild(dates); row.appendChild(actions);
+    panel.appendChild(row);
+  });
+
+  const addBtn = document.createElement('button'); addBtn.className='add-sem-btn'; addBtn.textContent='+ Add a term';
+  addBtn.addEventListener('click', ()=> promptNewTerm());
+  panel.appendChild(addBtn);
+
+  const backupSec = document.createElement('div'); backupSec.style.cssText='margin-top:14px;padding-top:12px;border-top:1px solid var(--line);';
+  const backupTitle = document.createElement('div'); backupTitle.className='sem-title'; backupTitle.textContent='Backup';
+  backupSec.appendChild(backupTitle);
+
+  const btnRow = document.createElement('div'); btnRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap;';
+  const downloadBtn = document.createElement('button'); downloadBtn.className='add-sem-btn'; downloadBtn.style.cssText='width:auto;flex:1;margin-top:0;'; downloadBtn.textContent='⬇ Download';
+  downloadBtn.addEventListener('click', downloadBackup);
+  const showExportBtn = document.createElement('button'); showExportBtn.className='add-sem-btn'; showExportBtn.style.cssText='width:auto;flex:1;margin-top:0;'; showExportBtn.textContent = backupOpen ? 'Hide text' : 'Show as text';
+  showExportBtn.addEventListener('click', ()=>{ backupOpen = !backupOpen; render(); });
+  btnRow.appendChild(downloadBtn); btnRow.appendChild(showExportBtn);
+  backupSec.appendChild(btnRow);
+
+  if(backupOpen){
+    const ta = document.createElement('textarea'); ta.readOnly = true; ta.value = JSON.stringify(state, null, 2);
+    ta.style.cssText = "width:100%;min-height:110px;margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;background:rgba(247,245,240,0.04);color:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical;";
+    ta.addEventListener('click', ()=> ta.select());
+    backupSec.appendChild(ta);
+    const copyBtn = document.createElement('button'); copyBtn.className='add-sem-btn'; copyBtn.style.marginTop='6px'; copyBtn.textContent='Copy to clipboard';
+    copyBtn.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(ta.value); copyBtn.textContent='Copied!'; setTimeout(()=>{ copyBtn.textContent='Copy to clipboard'; },1500); }
+      catch(e){ ta.select(); await customAlert('Could not copy automatically — the text is selected, so use Ctrl/Cmd+C.'); }
+    });
+    backupSec.appendChild(copyBtn);
+  }
+
+  const importToggle = document.createElement('button'); importToggle.className='add-sem-btn'; importToggle.style.marginTop='8px'; importToggle.textContent = importOpen ? 'Hide import' : '⬆ Import a backup';
+  importToggle.addEventListener('click', ()=>{ importOpen = !importOpen; render(); });
+  backupSec.appendChild(importToggle);
+
+  if(importOpen){
+    const ta2 = document.createElement('textarea'); ta2.placeholder = 'Paste your backup text here…'; ta2.value = importText;
+    ta2.style.cssText = "width:100%;min-height:110px;margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;background:rgba(247,245,240,0.04);color:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical;";
+    ta2.addEventListener('input', ()=>{ importText = ta2.value; });
+    backupSec.appendChild(ta2);
+    const loadBtn = document.createElement('button'); loadBtn.className='add-sem-btn'; loadBtn.style.marginTop='6px'; loadBtn.textContent='Load this backup';
+    loadBtn.addEventListener('click', async ()=>{
+      let parsed;
+      try{ parsed = JSON.parse(importText); }
+      catch(e){ await customAlert("That doesn't look like valid backup text — check that you copied the whole thing."); return; }
+      if(!parsed || !Array.isArray(parsed.semesters)){ await customAlert("This doesn't look like a Night Before backup."); return; }
+      if(!(await customConfirm('This replaces everything currently in the app with the pasted backup. Continue?'))) return;
+      state = {
+        verses: parsed.verses || {...VERSES},
+        entries: parsed.entries || {},
+        semesters: parsed.semesters,
+        schoolLink: parsed.schoolLink || state.schoolLink
+      };
+      importText=''; importOpen=false;
+      saveState(); render();
+    });
+    backupSec.appendChild(loadBtn);
+  }
+  panel.appendChild(backupSec);
+
+  const resetRow = document.createElement('div'); resetRow.style.cssText='margin-top:10px;text-align:center;';
+  const resetBtn = document.createElement('button');
+  resetBtn.style.cssText='background:transparent;border:none;color:var(--slate-dark);font-size:10.5px;text-decoration:underline;cursor:pointer;font-family:\'IBM Plex Mono\',monospace;';
+  resetBtn.textContent = 'New student? Start fresh (clears everything)';
+  resetBtn.addEventListener('click', async ()=>{
+    if(await customConfirm('Tip: use Download or Show as text above first if you want to keep a copy.\n\nThis clears every term, class, checklist, note, and journal entry so a new student can set up their own schedule. This cannot be undone. Continue?')){
+      state.semesters = [ buildBlankWeeklyShell() ];
+      state.entries = {};
+      selectedDate = fmtDate(START_DATE);
+      viewYear = START_DATE.getFullYear(); viewMonth = START_DATE.getMonth();
+      saveState(); render();
+    }
+  });
+  resetRow.appendChild(resetBtn);
+  panel.appendChild(resetRow);
+}
+
+function downloadBackup(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `night-before-backup-${todayStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function buildBlankWeeklyShell(){
+  const start = new Date(); const end = new Date(); end.setFullYear(end.getFullYear()+1);
+  return buildWeeklyShell('term-'+Date.now(), 'My Term', fmtDate(start), fmtDate(end));
+}
+
+async function promptNewTerm(anchorDateStr){
+  const label = await customPrompt('Term name (e.g. "Summer 2027"):', '');
+  if(label===null) return;
+  const rotating = await customConfirm('Does this term run on a rotating day cycle (Day 1, Day 2, … repeating on every school day) instead of the same schedule each week?\n\nOK = rotating schedule\nCancel = normal weekly schedule');
+  const start = await customPrompt('Start date (YYYY-MM-DD):', anchorDateStr || '');
+  if(start===null || !isValidDateStr(start)){ if(start!==null) await customAlert('Start date needs to be in YYYY-MM-DD format.'); return; }
+  const end = await customPrompt('End date (YYYY-MM-DD):', '');
+  if(end===null || !isValidDateStr(end)){ if(end!==null) await customAlert('End date needs to be in YYYY-MM-DD format.'); return; }
+
+  const overlaps = findOverlappingSemesters(start, end, null);
+  if(overlaps.length){
+    const names = overlaps.map(s=>`• ${s.label} (${s.start} – ${s.end})`).join('\n');
+    const deleteOld = await customConfirm(`This term's dates overlap with:\n${names}\n\nYour new term will take priority for those dates either way, but leaving the old one(s) in place can be confusing later.\n\nOK = delete the overlapping term(s) now\nCancel = keep both`);
+    if(deleteOld){ state.semesters = state.semesters.filter(s=> !overlaps.includes(s)); }
+  }
+
+  if(rotating){
+    const lenStr = await customPrompt('How many days in the rotation (e.g. 4 for a Day 1–Day 4 cycle)?', '4');
+    const cycleLength = parseInt(lenStr, 10);
+    if(!cycleLength || cycleLength<2){ await customAlert('Enter a number of at least 2.'); return; }
+    const anchor = await customPrompt('Which date is "Day 1" of the rotation? (YYYY-MM-DD)', start);
+    if(!isValidDateStr(anchor)){ await customAlert('Use YYYY-MM-DD format.'); return; }
+    const skipWk = await customConfirm('Skip weekends when counting the rotation forward?\n\nOK = yes, skip weekends. Cancel = rotation continues through weekends too.');
+    const newSem = buildRotatingShell('term-'+Date.now(), label || 'New Term', start, end, cycleLength, anchor, skipWk);
+    state.semesters.push(newSem);
+    saveState(); render();
+  }else{
+    const sorted = state.semesters.slice().sort((a,b)=> a.start.localeCompare(b.start));
+    const baseline = sorted.filter(s=> s.start < start && s.mode!=='rotating').pop() || sorted.find(s=>s.mode!=='rotating') || sorted[0];
+    const newSem = cloneSemesterShell(baseline, 'term-'+Date.now(), label || 'New Term', start, end);
+    state.semesters.push(newSem);
+    saveState(); render();
+  }
+}
+
+function renderSpecialDatesPanel(){
+  const panel = document.getElementById('specialDatesPanel');
+  panel.innerHTML='';
+  const title = document.createElement('div'); title.className='sem-title'; title.textContent='Academic Calendar';
+  panel.appendChild(title);
+
+  if(!state.specialDates.length){
+    const empty = document.createElement('div'); empty.style.cssText='font-size:12px;color:var(--slate);margin-bottom:10px;line-height:1.5;';
+    empty.textContent = 'No exam periods, breaks, or key dates added yet — these show up as colored dots on the calendar and a banner on that day.';
+    panel.appendChild(empty);
+  }
+  state.specialDates.slice().sort((a,b)=> a.start.localeCompare(b.start)).forEach(sd=>{
+    const row = document.createElement('div'); row.className='sem-row';
+    const label = document.createElement('div'); label.className='sem-label'; label.contentEditable='true'; label.textContent=sd.label;
+    label.addEventListener('blur', ()=>{ sd.label = label.textContent.trim()||sd.label; saveState(); renderCalendar(); });
+    const dates = document.createElement('div'); dates.className='sem-dates';
+    const dateTxt = document.createElement('span'); dateTxt.textContent = sd.start===sd.end ? sd.start : `${sd.start} → ${sd.end}`;
+    const catTag = document.createElement('span'); catTag.style.cssText = 'margin-left:6px;color:' + (sd.category==='exam' ? 'var(--gold)' : sd.category==='noclass' ? 'var(--rust)' : 'var(--violet)') + ';';
+    catTag.textContent = '· ' + sd.category;
+    dates.appendChild(dateTxt); dates.appendChild(catTag);
+    const actions = document.createElement('div'); actions.className='sem-actions';
+    const delBtn = document.createElement('button'); delBtn.className='danger'; delBtn.textContent='Delete';
+    delBtn.addEventListener('click', async ()=>{
+      if(await customConfirm(`Remove "${sd.label}" from the calendar?`)){
+        state.specialDates = state.specialDates.filter(x=>x!==sd);
+        saveState(); render();
+      }
+    });
+    actions.appendChild(delBtn);
+    row.appendChild(label); row.appendChild(dates); row.appendChild(actions);
+    panel.appendChild(row);
+  });
+
+  const addBtn = document.createElement('button'); addBtn.className='add-sem-btn'; addBtn.textContent='+ Add a date (exam, break, deadline…)';
+  addBtn.addEventListener('click', async ()=>{
+    const label = await customPrompt('What is this date? (e.g. "Midterm Exams", "Thanksgiving Break")', '');
+    if(label===null) return;
+    const start = await customPrompt('Start date (YYYY-MM-DD):', selectedDate);
+    if(start===null || !isValidDateStr(start)){ if(start!==null) await customAlert('Use YYYY-MM-DD format.'); return; }
+    const end = await customPrompt('End date (YYYY-MM-DD) — same as start for a single day:', start);
+    if(end===null || !isValidDateStr(end)){ if(end!==null) await customAlert('Use YYYY-MM-DD format.'); return; }
+    const catInput = await customPrompt('Category — type "exam", "noclass" (no school), or "other":', 'other');
+    if(catInput===null) return;
+    const category = ['exam','noclass'].includes(catInput.trim().toLowerCase()) ? catInput.trim().toLowerCase() : 'other';
+    state.specialDates.push({ label: label||'Untitled date', start, end, category });
+    saveState(); render();
+  });
+  panel.appendChild(addBtn);
+}
+
+function itemRow(text, checked, onToggle, onEdit, onRemove){
+  const li = document.createElement('li');
+  const chk = document.createElement('div');
+  chk.className = 'chk' + (checked?' on':'');
+  chk.textContent = '✓';
+  chk.addEventListener('click', onToggle);
+  const span = document.createElement('div');
+  span.className = 'item-text' + (checked?' done':'');
+  span.contentEditable = 'true';
+  span.textContent = text;
+  span.addEventListener('blur', ()=> onEdit(span.textContent.trim() || text));
+  span.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); span.blur(); }});
+  const rm = document.createElement('button');
+  rm.className='rm'; rm.textContent='✕'; rm.title='Remove item';
+  rm.addEventListener('click', onRemove);
+  li.appendChild(chk); li.appendChild(span); li.appendChild(rm);
+  return li;
+}
+
+function renderChecklist(container, items, checksArr, onChangeChecks, onChangeItems){
+  const ul = document.createElement('ul'); ul.className='items';
+  items.forEach((text, i)=>{
+    const checked = !!checksArr[i];
+    ul.appendChild(itemRow(text, checked,
+      ()=>{ checksArr[i] = !checksArr[i]; onChangeChecks(checksArr); saveState(); render(); },
+      (newText)=>{ items[i]=newText; onChangeItems(items); saveState(); render(); },
+      ()=>{ items.splice(i,1); checksArr.splice(i,1); onChangeItems(items); onChangeChecks(checksArr); saveState(); render(); }
+    ));
+  });
+  container.appendChild(ul);
+  const addRow = document.createElement('div'); addRow.className='add-row';
+  const btn = document.createElement('button'); btn.textContent = '+ add item';
+  btn.addEventListener('click', ()=>{ items.push('New item'); checksArr.push(false); onChangeItems(items); onChangeChecks(checksArr); saveState(); render(); });
+  addRow.appendChild(btn); container.appendChild(addRow);
+}
+
+async function editLifeField(dayKey, sem, item, field, newValue){
+  const oldValue = item[field];
+  if(newValue === oldValue) return;
+  item[field] = newValue;
+  if(item.groupId){
+    const container = getScheduleContainer(sem);
+    const others = [];
+    Object.keys(container).forEach(k=>{
+      if(String(k)===String(dayKey)) return;
+      (container[k].life||[]).forEach(li=>{ if(li.groupId===item.groupId) others.push(li); });
+    });
+    if(others.length){
+      const proceed = await customConfirm(`Apply this change to all "${item.label}" events on the schedule?`);
+      if(proceed){ others.forEach(li=>{ li[field]=newValue; }); }
+    }
+  }
+  saveState();
+}
+
+async function applyCustomEdit(ev, field, oldValue, newValue){
+  if(newValue === oldValue) return;
+  if(ev.groupId){
+    const others = [];
+    Object.keys(state.entries).forEach(ds=>{
+      (state.entries[ds].customEvents||[]).forEach(e2=>{ if(e2.groupId===ev.groupId && e2!==ev) others.push(e2); });
+    });
+    if(others.length){
+      const proceed = await customConfirm(`Apply this change to all repeats of "${ev.label}"?`);
+      if(proceed) others.forEach(e2=>{ e2[field]=newValue; });
+    }
+  }
+  saveState();
+}
+
+function buildEmailBody(dateStr, dateObj, dow, sem, entry, verse){
+  const t = sem ? getDayTemplate(dateStr, sem) : null;
+  const lines = [];
+  lines.push(`PREP FOR ${dayLabelFor(dateStr, sem).toUpperCase()}, ${MONTH_NAMES[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`);
+  lines.push('');
+  if(!t){
+    lines.push('No class schedule set up for this term yet.');
+    return lines.join('\n');
+  }
+  if(t.life && t.life.length){
+    lines.push('RECURRING COMMITMENTS');
+    t.life.forEach(li=> lines.push(`  ${li.label} — ${li.time} (${li.dress})`));
+    if(t.eveningNote) lines.push(`  Note: ${t.eveningNote}`);
+    lines.push('');
+  }
+  if(t.work){
+    lines.push(`WORK — ${t.work.place || ''} (${t.work.time})`);
+    t.work.items.forEach((it,i)=> lines.push(`  [${(entry.workChecks&&entry.workChecks[i])?'x':' '}] ${it}`));
+    lines.push('');
+  }
+  if(t.classes.length){
+    lines.push('CLASSES');
+    t.classes.forEach(ref=>{
+      const cd = sem.classDefs[ref.id]; if(!cd) return;
+      lines.push(`  ${cd.code} - ${cd.name}`);
+      lines.push(`  ${ref.time} · Room ${cd.loc}${cd.instr? ' · '+cd.instr : ''}`);
+      const checks = (entry.classChecks && entry.classChecks[ref.id]) || [];
+      cd.items.forEach((it,i)=> lines.push(`    [${checks[i]?'x':' '}] ${it}`));
+      lines.push('');
+    });
+  }
+  if(entry.customEvents && entry.customEvents.length){
+    lines.push('YOUR EVENTS');
+    entry.customEvents.forEach(ev=> lines.push(`  ${ev.label}${ev.time? ' — '+ev.time : ''}`));
+    lines.push('');
+  }
+  lines.push('TIME TO STUDY');
+  t.studyWindows.forEach(w=> lines.push(`  - ${w}`));
+  lines.push('');
+  if(state.showDailyNote && verse && verse.text){ lines.push('QUOTE / VERSE FOR THE DAY'); lines.push(`  "${verse.text}"${verse.ref? ' — '+verse.ref : ''}`); lines.push(''); }
+  if(entry.notes){ lines.push('NOTES'); lines.push(`  ${entry.notes}`); }
+  return lines.join('\n');
+}
+
+function renderPrepPanel(){
+  const panel = document.getElementById('prepPanel');
+  panel.innerHTML='';
+  const dateObj = parseDate(selectedDate);
+  const dow = dateObj.getDay();
+  const sem = findSemester(selectedDate);
+  const entry = getEntry(selectedDate);
+  const prog = entryProgress(selectedDate);
+  const verse = state.verses[dow];
+
+  const head = document.createElement('div'); head.className='prep-head';
+  const left = document.createElement('div');
+  left.innerHTML = `<div class="prep-date"><span class="downame">${dayLabelFor(selectedDate, sem)}</span> · ${MONTH_NAMES[dateObj.getMonth()]} ${dateObj.getDate()}</div>
+    <div class="prep-sub">${sem ? sem.label : 'no term set'} · get this ready the evening before</div>`;
+  head.appendChild(left);
+  const right = document.createElement('div'); right.className='head-right';
+  const badge = document.createElement('div'); badge.className='progress-badge';
+  badge.textContent = prog.total>0 ? `${prog.done} / ${prog.total} ready` : 'nothing scheduled';
+  const emailBtn = document.createElement('button'); emailBtn.className='email-btn'; emailBtn.innerHTML = '✉ Email this day';
+  emailBtn.addEventListener('click', ()=>{
+    const subject = encodeURIComponent(`Prep for ${dayLabelFor(selectedDate, sem)}, ${MONTH_NAMES[dateObj.getMonth()]} ${dateObj.getDate()}`);
+    const body = encodeURIComponent(buildEmailBody(selectedDate, dateObj, dow, sem, entry, verse));
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  });
+  right.appendChild(badge); right.appendChild(emailBtn);
+  head.appendChild(right);
+  panel.appendChild(head);
+
+  const specials = specialDatesFor(selectedDate);
+  if(specials.length){
+    const cat = topCategoryFor(selectedDate);
+    const banner = document.createElement('div'); banner.className='special-banner '+cat;
+    let inner = `<strong>Semester Calendar</strong>`;
+    specials.forEach(s=>{ inner += `<div class="line">${s.label}${s.time? ' — '+s.time : ''}</div>`; });
+    banner.innerHTML = inner;
+    panel.appendChild(banner);
+  }
+
+  if(state.showDailyNote && verse){
+    const vc = document.createElement('div'); vc.className='verse-card';
+    const vt = document.createElement('div'); vt.className='verse-text'; vt.contentEditable='true';
+    vt.textContent = verse.text ? `"${verse.text}"` : 'Click to add a quote, verse, or motto for this day of the week…';
+    vt.addEventListener('blur', ()=>{ verse.text = vt.textContent.replace(/^"|"$/g,'').trim(); saveState(); });
+    const vr = document.createElement('div'); vr.className='verse-ref'; vr.contentEditable='true'; vr.textContent = verse.ref || 'source (optional)';
+    vr.addEventListener('blur', ()=>{ verse.ref = vr.textContent.trim(); saveState(); });
+    vc.appendChild(vt); vc.appendChild(vr);
+    panel.appendChild(vc);
+  }
+
+  if(!sem){
+    const isFirstRun = state.semesters.length===0;
+    const card = document.createElement('div'); card.className='no-sem-card';
+    card.innerHTML = isFirstRun
+      ? `<p><strong style="color:var(--paper);">Welcome!</strong> Let's set up your first term — classes, work shifts, recurring commitments, all in one place. This only takes a minute, and everything's editable later.</p>`
+      : `<p>No class schedule is set up for this stretch of the calendar yet — could be a break between terms, or a future term you haven't built out.</p>`;
+    const btn = document.createElement('button'); btn.textContent = isFirstRun ? 'Get started' : 'Set up this term';
+    btn.addEventListener('click', ()=> promptNewTerm(selectedDate));
+    card.appendChild(btn);
+    panel.appendChild(card);
+    return;
+  }
+
+  const dayKey = getDayKey(selectedDate, sem);
+  const t = getDayTemplate(selectedDate, sem);
+
+  if(!t){
+    const sec = document.createElement('div'); sec.className='section';
+    sec.innerHTML = `<div class="empty-state">No school today — not a school day in this term's rotation (weekend or a no-class date).</div>`;
+    panel.appendChild(sec);
+    renderCustomEventsAndNotes(panel, entry, dateObj);
+    return;
+  }
+
+  if(t.life && t.life.length){
+    const sec = document.createElement('div'); sec.className='section';
+    sec.innerHTML = `<div class="section-title"><span class="swatch" style="background:var(--violet)"></span>Recurring Commitments</div>`;
+    t.life.forEach(li=>{
+      const card = document.createElement('div'); card.className='life-card';
+      const nameEl = document.createElement('div'); nameEl.className='life-name'; nameEl.contentEditable='true'; nameEl.textContent=li.label;
+      nameEl.addEventListener('blur', async ()=>{ await editLifeField(dayKey, sem, li, 'label', nameEl.textContent.trim()||li.label); render(); });
+      const meta = document.createElement('div'); meta.className='life-meta';
+      const timeEl = document.createElement('div'); timeEl.className='life-time'; timeEl.contentEditable='true'; timeEl.textContent=li.time;
+      timeEl.addEventListener('blur', async ()=>{ await editLifeField(dayKey, sem, li, 'time', timeEl.textContent.trim()||li.time); render(); });
+      const dressEl = document.createElement('div'); dressEl.className='life-dress'; dressEl.contentEditable='true'; dressEl.textContent=li.dress;
+      dressEl.addEventListener('blur', async ()=>{ await editLifeField(dayKey, sem, li, 'dress', dressEl.textContent.trim()||li.dress); render(); });
+      meta.appendChild(timeEl); meta.appendChild(dressEl);
+      card.appendChild(nameEl); card.appendChild(meta);
+      sec.appendChild(card);
+    });
+    if(t.eveningNote){
+      const note = document.createElement('div'); note.className='life-note'; note.contentEditable='true'; note.textContent = t.eveningNote;
+      note.addEventListener('blur', ()=>{ t.eveningNote = note.textContent.trim(); saveState(); });
+      sec.appendChild(note);
+    }
+    panel.appendChild(sec);
+  }
+
+  if(t.work){
+    const sec = document.createElement('div'); sec.className='section';
+    sec.innerHTML = `<div class="section-title"><span class="swatch" style="background:var(--rust)"></span>Work / Job · ${t.work.place} · ${t.work.time}</div>`;
+    const card = document.createElement('div'); card.className='card';
+    if(!entry.workChecks) entry.workChecks=[];
+    while(entry.workChecks.length < t.work.items.length) entry.workChecks.push(false);
+    renderChecklist(card, t.work.items, entry.workChecks, (arr)=>{ entry.workChecks=arr; }, (items)=>{ t.work.items=items; });
+    sec.appendChild(card);
+    panel.appendChild(sec);
+  }
+
+  // Class materials — always shown so classes can be added, even on empty days
+  const classSec = document.createElement('div'); classSec.className='section';
+  classSec.innerHTML = `<div class="section-title"><span class="swatch" style="background:var(--gold)"></span>Class materials</div>`;
+  t.classes.forEach(ref=>{
+    const cd = sem.classDefs[ref.id];
+    if(!cd) return;
+    const card = document.createElement('div'); card.className='card';
+    const rm = document.createElement('button'); rm.className='card-remove'; rm.textContent='✕'; rm.title='Remove from this day';
+    rm.addEventListener('click', ()=>{
+      t.classes = t.classes.filter(r=>r!==ref);
+      saveState(); render();
+    });
+    card.appendChild(rm);
+
+    const top = document.createElement('div'); top.className='card-top';
+    const leftCol = document.createElement('div');
+    const nameEl = document.createElement('div'); nameEl.className='card-name'; nameEl.contentEditable='true'; nameEl.textContent=cd.name;
+    nameEl.addEventListener('blur', ()=>{ cd.name = nameEl.textContent.trim()||cd.name; saveState(); });
+    const codeEl = document.createElement('div'); codeEl.className='card-code'; codeEl.contentEditable='true'; codeEl.textContent=cd.code;
+    codeEl.addEventListener('blur', ()=>{ cd.code = codeEl.textContent.trim()||cd.code; saveState(); render(); });
+    const locEl = document.createElement('div'); locEl.className='card-loc'; locEl.contentEditable='true'; locEl.textContent='📍 Room '+cd.loc;
+    locEl.addEventListener('blur', ()=>{ cd.loc = locEl.textContent.replace('📍 Room','').trim()||cd.loc; saveState(); render(); });
+    leftCol.appendChild(nameEl); leftCol.appendChild(document.createElement('br')); leftCol.appendChild(codeEl); leftCol.appendChild(locEl);
+
+    const rightCol = document.createElement('div');
+    const timeEl = document.createElement('div'); timeEl.className='card-time'; timeEl.contentEditable='true'; timeEl.textContent=ref.time;
+    timeEl.addEventListener('blur', ()=>{ ref.time = timeEl.textContent.trim()||ref.time; saveState(); });
+    const instrEl = document.createElement('div'); instrEl.className='card-instr'; instrEl.contentEditable='true'; instrEl.textContent=cd.instr||'';
+    instrEl.addEventListener('blur', ()=>{ cd.instr = instrEl.textContent.trim(); saveState(); render(); });
+    rightCol.appendChild(timeEl); rightCol.appendChild(instrEl);
+
+    top.appendChild(leftCol); top.appendChild(rightCol);
+    card.appendChild(top);
+
+    if(!entry.classChecks) entry.classChecks={};
+    if(!entry.classChecks[ref.id]) entry.classChecks[ref.id]=[];
+    while(entry.classChecks[ref.id].length < cd.items.length) entry.classChecks[ref.id].push(false);
+    renderChecklist(card, cd.items, entry.classChecks[ref.id],
+      (arr)=>{ entry.classChecks[ref.id]=arr; },
+      (items)=>{ cd.items=items; }); // shared reference — updates this class everywhere it meets
+    classSec.appendChild(card);
+  });
+
+  const addClassRow = document.createElement('div'); addClassRow.className='add-row';
+  const addClassBtn = document.createElement('button'); addClassBtn.textContent='+ add class';
+  addClassBtn.addEventListener('click', async ()=>{
+    const existingIds = Object.keys(sem.classDefs);
+    let useExisting = null;
+    if(existingIds.length){
+      const listStr = existingIds.map(id=>`${sem.classDefs[id].code} — ${sem.classDefs[id].name}`).join('\n');
+      const pick = await customPrompt(`To reuse a class already on the schedule, type its course code exactly as shown, then press OK. Leave blank to create a brand new class.\n\n${listStr}`, '');
+      if(pick===null) return;
+      if(pick.trim()){
+        const match = existingIds.find(id=> sem.classDefs[id].code.toLowerCase() === pick.trim().toLowerCase());
+        if(match) useExisting = match;
+        else await customAlert('No class found with that code — creating a new class instead.');
+      }
+    }
+    const time = await customPrompt('Meeting time for this day (e.g. 11:00–11:50 a.m.):', '');
+    if(time===null) return;
+    let id;
+    if(useExisting){
+      id = useExisting;
+    }else{
+      const code = await customPrompt('Course code (e.g. AC 231):', '');
+      if(code===null) return;
+      const name = (await customPrompt('Course name:', '')) || 'New Class';
+      const loc = (await customPrompt('Room:', '')) || '';
+      const instr = (await customPrompt('Instructor:', '')) || '';
+      id = 'c'+Date.now();
+      sem.classDefs[id] = {code: code||'NEW', name, loc, instr, items:[]};
+    }
+    t.classes.push({id, time});
+    saveState(); render();
+  });
+  addClassRow.appendChild(addClassBtn);
+  classSec.appendChild(addClassRow);
+  panel.appendChild(classSec);
+
+  if(!t.work && !t.classes.length && (!t.life || !t.life.length)){
+    const sec = document.createElement('div'); sec.className='section';
+    sec.innerHTML = `<div class="empty-state">Nothing on the schedule — open day for rest, errands, or catching up.</div>`;
+    panel.appendChild(sec);
+  }
+
+  const sw = document.createElement('div'); sw.className='section';
+  sw.innerHTML = `<div class="section-title"><span class="swatch" style="background:var(--pine)"></span>Time available to study</div>`;
+  const chipsWrap = document.createElement('div'); chipsWrap.className='chips';
+  t.studyWindows.forEach((w,i)=>{
+    const chip = document.createElement('span'); chip.className='chip';
+    const txt = document.createElement('span'); txt.contentEditable='true'; txt.textContent=w;
+    txt.addEventListener('blur', ()=>{ t.studyWindows[i]=txt.textContent.trim()||w; saveState(); });
+    const rm = document.createElement('button'); rm.className='rm'; rm.textContent='✕';
+    rm.addEventListener('click', ()=>{ t.studyWindows.splice(i,1); saveState(); render(); });
+    chip.appendChild(txt); chip.appendChild(rm);
+    chipsWrap.appendChild(chip);
+  });
+  const addChip = document.createElement('button'); addChip.className='chip chip-add'; addChip.textContent='+ add window';
+  addChip.addEventListener('click', ()=>{ t.studyWindows.push('New window'); saveState(); render(); });
+  chipsWrap.appendChild(addChip);
+  sw.appendChild(chipsWrap);
+  panel.appendChild(sw);
+
+  renderCustomEventsAndNotes(panel, entry, dateObj);
+}
+
+function renderCustomEventsAndNotes(panel, entry, dateObj){
+  const evSec = document.createElement('div'); evSec.className='section';
+  evSec.innerHTML = `<div class="section-title"><span class="swatch" style="background:var(--gold-dim)"></span>Your events</div>`;
+  if(!entry.customEvents) entry.customEvents=[];
+  entry.customEvents.forEach((ev,i)=>{
+    const card = document.createElement('div'); card.className='custom-card';
+    const row = document.createElement('div'); row.className='custom-row';
+    const startLabel = ev.label, startTime = ev.time||'';
+    const labelInput = document.createElement('input'); labelInput.className='custom-label'; labelInput.value=ev.label; labelInput.placeholder='Event name';
+    labelInput.addEventListener('input', ()=>{ ev.label=labelInput.value; });
+    labelInput.addEventListener('blur', async ()=>{ await applyCustomEdit(ev, 'label', startLabel, ev.label); renderCalendar(); });
+    const timeInput = document.createElement('input'); timeInput.className='custom-time'; timeInput.value=ev.time||''; timeInput.placeholder='e.g. 4:00 p.m.';
+    timeInput.addEventListener('input', ()=>{ ev.time=timeInput.value; });
+    timeInput.addEventListener('blur', async ()=>{ await applyCustomEdit(ev, 'time', startTime, ev.time); });
+    const rm = document.createElement('button'); rm.className='rm'; rm.style.opacity='1'; rm.textContent='✕';
+    rm.addEventListener('click', ()=>{ entry.customEvents.splice(i,1); saveState(); render(); });
+    row.appendChild(labelInput); row.appendChild(timeInput); row.appendChild(rm);
+    card.appendChild(row);
+    if(ev.groupId){
+      const tag = document.createElement('div'); tag.style.cssText="font-size:10px;color:var(--slate-dark);font-family:'IBM Plex Mono',monospace;margin-top:5px;";
+      tag.textContent = 'repeats weekly';
+      card.appendChild(tag);
+    }
+    evSec.appendChild(card);
+  });
+  const addEvBtn = document.createElement('div'); addEvBtn.className='add-row';
+  const addEvButton = document.createElement('button'); addEvButton.textContent='+ add your own event';
+  addEvButton.addEventListener('click', async ()=>{
+    const repeat = await customConfirm('Repeat this event every week until the end of the semester?');
+    if(repeat){
+      const groupId = 'ev'+Date.now();
+      entry.customEvents.push({id:groupId, groupId, label:'New event', time:''});
+      const end = getRepeatEndDate(dateObj);
+      let d = new Date(dateObj); d.setDate(d.getDate()+7);
+      while(d <= end){
+        const dstr = fmtDate(d);
+        const e2 = getEntry(dstr);
+        e2.customEvents.push({id:'ev'+d.getTime(), groupId, label:'New event', time:''});
+        d.setDate(d.getDate()+7);
+      }
+    }else{
+      entry.customEvents.push({id:'ev'+Date.now(), label:'New event', time:''});
+    }
+    saveState(); render();
+  });
+  addEvBtn.appendChild(addEvButton); evSec.appendChild(addEvBtn);
+  panel.appendChild(evSec);
+
+  const notesSec = document.createElement('div'); notesSec.className='section';
+  notesSec.innerHTML = `<div class="section-title"><span class="swatch" style="background:var(--slate)"></span>Notes for tonight</div>`;
+  const ta = document.createElement('textarea'); ta.className='notes';
+  ta.placeholder = "Anything else to remember — errands, reminders, what to pack...";
+  ta.value = entry.notes || '';
+  ta.addEventListener('input', ()=>{ entry.notes = ta.value; saveState(); renderCalendar(); });
+  notesSec.appendChild(ta);
+  const hint = document.createElement('div'); hint.className='save-hint'; hint.id='saveHint';
+  hint.textContent = saveStatus==='saved' ? 'saved automatically'
+    : saveStatus==='saving' ? 'saving…'
+    : saveStatus==='retrying' ? 'connection hiccup — retrying…'
+    : 'could not save — will retry on next change';
+  notesSec.appendChild(hint);
+  panel.appendChild(notesSec);
+}
+
+function renderSchoolLink(){
+  const a = document.getElementById('schoolLinkAnchor');
+  if(state.schoolLink.url){
+    a.textContent = state.schoolLink.label || 'School Calendar ↗';
+    a.href = state.schoolLink.url;
+    a.target = '_blank';
+  }else{
+    a.textContent = "+ Add your school's calendar link";
+    a.href = '#';
+    a.removeAttribute('target');
+    a.addEventListener('click', (e)=> e.preventDefault(), { once:true });
+  }
+}
+document.getElementById('schoolLinkAnchor').addEventListener('click', (e)=>{
+  if(!state.schoolLink.url){ e.preventDefault(); document.getElementById('schoolLinkEdit').click(); }
+});
+document.getElementById('schoolLinkEdit').addEventListener('click', async ()=>{
+  const label = await customPrompt('Link label (e.g. "Registrar Calendar"):', state.schoolLink.label);
+  if(label===null) return;
+  const url = await customPrompt('Link URL:', state.schoolLink.url);
+  if(url===null) return;
+  state.schoolLink = { label: label.trim(), url: url.trim() };
+  saveState(); renderSchoolLink();
+});
+
+function render(){ renderSchoolLink(); renderCalendar(); renderSemesterPanel(); renderSpecialDatesPanel(); renderPrepPanel(); }
+initAuth();
+</script>
+</body>
+</html>
