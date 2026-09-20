@@ -1383,6 +1383,20 @@ async function enablePush(){
     await customConfirm('Could not enable notifications: ' + e.message);
   }
 }
+function getReminderClasses(){
+  const classes = [];
+  const seen = new Set();
+  state.semesters.forEach(semester=>{
+    Object.values(semester.classDefs || {}).forEach(classDef=>{
+      const label = [classDef.code, classDef.name].filter(Boolean).join(' — ');
+      if(label && !seen.has(label)){
+        seen.add(label);
+        classes.push(label);
+      }
+    });
+  });
+  return classes.sort((first, second)=>first.localeCompare(second));
+}
 async function openRemindersModal(){
   return openModal((box, done)=>{
     async function renderRemindersBox(){
@@ -1421,11 +1435,23 @@ async function openRemindersModal(){
       });
       box.appendChild(list);
 
-      const form=document.createElement('div'); form.style.cssText='display:flex;gap:6px;margin-bottom:14px;';
+      const form=document.createElement('div'); form.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;';
       const timeInput=document.createElement('input'); timeInput.type='time';
       timeInput.style.cssText='background:rgba(247,245,240,0.05);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--paper);font-family:inherit;font-size:13px;flex:1;min-width:0;';
-      const labelInput=document.createElement('input'); labelInput.type='text'; labelInput.placeholder='Label (optional)';
-      labelInput.style.cssText='background:rgba(247,245,240,0.05);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--paper);font-family:inherit;font-size:13px;flex:1;min-width:0;';
+      const classSelect=document.createElement('select');
+      classSelect.style.cssText='background:rgba(247,245,240,0.05);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--paper);font-family:inherit;font-size:13px;flex:2;min-width:0;';
+      const customOption=document.createElement('option'); customOption.value=''; customOption.textContent='Custom reminder';
+      classSelect.appendChild(customOption);
+      getReminderClasses().forEach(className=>{
+        const option=document.createElement('option'); option.value=className; option.textContent=className;
+        classSelect.appendChild(option);
+      });
+      const labelInput=document.createElement('input'); labelInput.type='text'; labelInput.placeholder='Custom reminder text (optional)';
+      labelInput.style.cssText='background:rgba(247,245,240,0.05);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--paper);font-family:inherit;font-size:13px;flex:1 1 100%;min-width:0;';
+      classSelect.addEventListener('change', ()=>{
+        labelInput.disabled = !!classSelect.value;
+        labelInput.value = classSelect.value;
+      });
       const addBtn=document.createElement('button'); addBtn.textContent='Add';
       addBtn.style.cssText='background:var(--gold);color:var(--ink);border:none;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13px;flex-shrink:0;';
       addBtn.addEventListener('click', async ()=>{
@@ -1433,10 +1459,10 @@ async function openRemindersModal(){
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const { error } = await sb.from('reminder_times').insert({ user_id: currentUser.id, time_of_day: timeInput.value, timezone: tz, label: labelInput.value.trim() || null });
         if(error){ await customAlert('Could not add reminder: ' + error.message); return; }
-        timeInput.value=''; labelInput.value='';
+        timeInput.value=''; classSelect.value=''; labelInput.disabled=false; labelInput.value='';
         await renderRemindersBox();
       });
-      form.appendChild(timeInput); form.appendChild(labelInput); form.appendChild(addBtn);
+      form.appendChild(timeInput); form.appendChild(classSelect); form.appendChild(addBtn); form.appendChild(labelInput);
       box.appendChild(form);
 
       const closeBtn=document.createElement('button'); closeBtn.textContent='Close';
