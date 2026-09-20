@@ -40,6 +40,13 @@ Deno.serve(async () => {
       .select("*")
       .eq("user_id", reminder.user_id);
 
+    if (!subscriptions?.length) {
+      console.warn("No push subscriptions for due reminder", { reminder_id: reminder.id, user_id: reminder.user_id });
+      results.push({ user_id: reminder.user_id, reminder_id: reminder.id, status: "no_subscriptions" });
+      continue;
+    }
+
+    let delivered = false;
     for (const subscriptionRow of subscriptions ?? []) {
       const subscription = {
         endpoint: subscriptionRow.endpoint,
@@ -50,16 +57,21 @@ Deno.serve(async () => {
           subscription,
           JSON.stringify({ title: "Prep Journal", body: reminder.label || "Time to prep for tomorrow." })
         );
+        delivered = true;
         results.push({ user_id: reminder.user_id, reminder_id: reminder.id, status: "sent" });
       } catch (error) {
         if (error && typeof error === "object" && "statusCode" in error && (error.statusCode === 404 || error.statusCode === 410)) {
           await supabase.from("push_subscriptions").delete().eq("id", subscriptionRow.id);
         }
+        console.error("Push delivery failed", { reminder_id: reminder.id, subscription_id: subscriptionRow.id, error: String(error) });
         results.push({ user_id: reminder.user_id, reminder_id: reminder.id, status: "failed", error: String(error) });
       }
     }
 
-    await supabase.from("reminder_times").update({ last_sent_on: todayLocal }).eq("id", reminder.id);
+    if (delivered) {
+      const { error: updateError } = await supabase.from("reminder_times").update({ last_sent_on: todayLocal }).eq("id", reminder.id);
+      if (updateError) console.error("Could not mark reminder as sent", { reminder_id: reminder.id, error: updateError.message });
+    }
   }
 
   return new Response(JSON.stringify({ ok: true, checked: (reminders ?? []).length, results }), {
