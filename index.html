@@ -289,6 +289,9 @@
 const STORAGE_KEY = 'prep-journal-template-v1'; // kept only as a label; persistence now lives in Supabase
 const SUPABASE_URL = 'https://ztdfgqesgtwphmvakprr.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGZncWVzZ3R3cGhtdmFrcHJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4NzM4NzMsImV4cCI6MjEwNTQ0OTg3M30.AoZ1aeGwBkXONXa4YG8i6UHSVUfgg-K74TD0k_BPG_w';
+const AUTH_REDIRECT_URL = window.location.protocol === 'http:' || window.location.protocol === 'https:'
+  ? window.location.href.split('#')[0]
+  : null;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 const SHARE_STORAGE_KEY = 'prep-journal-viewing-code';
@@ -310,10 +313,15 @@ async function sendMagicLink(){
   const email = document.getElementById('authEmail').value.trim();
   const statusEl = document.getElementById('authStatus');
   if(!email){ statusEl.textContent = 'Enter your email first.'; return; }
+  if(!AUTH_REDIRECT_URL){ statusEl.textContent = 'Open this journal from a web address before signing in.'; return; }
   document.getElementById('authSendBtn').disabled = true;
-  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: window.location.href } });
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: AUTH_REDIRECT_URL, shouldCreateUser:false } });
   document.getElementById('authSendBtn').disabled = false;
-  statusEl.textContent = error ? ('Error: ' + error.message) : 'Check your email for the sign-in link.';
+  statusEl.textContent = error
+    ? (error.message.toLowerCase().includes('signups not allowed')
+      ? 'This email is not registered for this journal. Ask the journal owner to enable your account first.'
+      : 'Could not send a sign-in link. Please try again.')
+    : 'Check your email for the sign-in link.';
 }
 async function enterApp(user){
   currentUser = user;
