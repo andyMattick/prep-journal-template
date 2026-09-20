@@ -290,7 +290,7 @@ const STORAGE_KEY = 'prep-journal-template-v1'; // kept only as a label; persist
 const SUPABASE_URL = 'https://ztdfgqesgtwphmvakprr.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGZncWVzZ3R3cGhtdmFrcHJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4NzM4NzMsImV4cCI6MjEwNTQ0OTg3M30.AoZ1aeGwBkXONXa4YG8i6UHSVUfgg-K74TD0k_BPG_w';
 const AUTH_REDIRECT_URL = window.location.protocol === 'http:' || window.location.protocol === 'https:'
-  ? window.location.href.split('#')[0]
+  ? window.location.origin + window.location.pathname
   : null;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
